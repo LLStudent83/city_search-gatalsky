@@ -1,33 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_URL } from '../utils/constants';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL } from "../utils/constants";
 
 export default function Search({ results, setResults, data, setData }) {
+  const [query, setQuery] = useState("");
 
-  const [query, setQuery] = useState('');
+  // какие негативные последствия есть у использования useEffect в данной ситуации ?????????????????????
 
-  useEffect(() => {
-    const search = async () => {
-      if (query.length >= 3) {
+  // useEffect(() => {
+  //   console.log("сработал useEffect");
+  //   const search = async () => {
+  //     if (query.length >= 3) {
+  //       try {
+  //         const response = await axios.get(
+  //           `${API_URL}?format=json&q=${query}&limit=5`
+  //         );
+  //         setResults(response.data);
+  //       } catch (error) {
+  //         console.error(error);
+  //         setResults([]);
+  //       }
+  //     } else {
+  //       setResults([]);
+  //     }
+  //   };
 
-        try {
-          const response = await axios.get(`${API_URL}?format=json&q=${query}&limit=5`);
-          setResults(response.data);
-        } catch (error) {
-          console.error(error);
-          setResults([]);
-        }
-      } else {
+  //   search();
+  // }, [query, setResults]);
+
+  const handleInpun = async (e) => {
+    setQuery(e.target.value);
+
+    if (e.target.value.length >= 3) {
+      try {
+        const response = await axios.get(
+          `${API_URL}?format=json&q=${query}&limit=5`
+        );
+        setResults(response.data);
+      } catch (error) {
+        console.error(error);
         setResults([]);
       }
-    };
-
-    search();
-  }, [query]);
-
-  const handleInpun = (e) => {
-    setQuery(e.target.value);
-  }
+    }
+  };
 
   const handleAdd = (result) => {
     const parts = result.display_name.split(", ");
@@ -39,35 +54,33 @@ export default function Search({ results, setResults, data, setData }) {
     const newData = [...data, { firstPart, penultimatePart, lastPart }];
     setData(newData);
     setResults([]);
-    setQuery('');
-  }
+    setQuery("");
+  };
 
-
-	return (
+  return (
     <div className="search">
       <h1 className="search__title">Поиск городов</h1>
       <input
         className="search__input"
-        type='text'
-        placeholder='Введите название города'
+        type="text"
+        placeholder="Введите название города"
         value={query}
         onChange={handleInpun}
       />
       <ul className="search__ul">
         {results.map((result) => (
-          <li
-            className="search__li"
-            key={result.place_id}
-          >
+          <li className="search__li" key={result.place_id}>
             {result.display_name}
             <button
               className="search__button"
-              type='button'
+              type="button"
               onClick={() => handleAdd(result)}
-            >Выбрать</button>
+            >
+              Выбрать
+            </button>
           </li>
         ))}
       </ul>
     </div>
-	)
+  );
 }
